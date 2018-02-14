@@ -67,4 +67,16 @@ class CSVRow
         }
     }
 
+    /**
+     * @param int[] $ordering
+     */
+    public function reorder($ordering){
+        $fields = array();
+
+        foreach ($ordering as $order) {
+            $fields[] = $this->fields[$order];
+        }
+        $this->fields = $fields;
+    }
+
 }

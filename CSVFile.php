@@ -259,4 +259,24 @@ class CSVFile
         file_put_contents($this->csvPath, $finalRawContent);
     }
 
+    /**
+     * @param int[] $ordering
+     * @throws CSVException
+     */
+    public function reorder($ordering){
+        if(count($ordering) != count($this->headers)) throw new CSVException("", 2, null, $this);
+
+        $header = array();
+
+        foreach ($ordering as $order) {
+            $header[] = $this->headers[$order];
+        }
+        $this->headers = $header;
+
+        foreach ($this->rows as $CSVRow) {
+            $CSVRow->reorder($ordering);
+        }
+
+    }
+
 }
