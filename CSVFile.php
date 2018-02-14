@@ -236,4 +236,27 @@ class CSVFile
 
     }
 
+
+    public function save(){
+        $finalRawContent = "";
+        $header = array();
+        foreach ($this->headers as $CSVHeader) {
+            $header[] = $CSVHeader->getName();
+        }
+        $finalRawContent .= implode($this->columnDelimiter, $header) . $this->newLineDelimiter;
+        $rows = array();
+        foreach ($this->rows as $CSVRow) {
+            $values = array();
+
+            foreach ($CSVRow->getFields() as $CSVField) {
+                $values[] = $CSVField->getValue();
+            }
+
+            $rows[] = implode($this->columnDelimiter, $values);
+            
+        }
+        $finalRawContent .= implode($this->newLineDelimiter, $rows);
+        file_put_contents($this->csvPath, $finalRawContent);
+    }
+
 }
