@@ -279,4 +279,52 @@ class CSVFile
 
     }
 
+    /**
+     * Split column in two values. If values exceed 2, php will keep only the two firsts.
+     *
+     * @param $columnIndex
+     * @param $splitText
+     */
+    public function splitColumn($columnIndex, $splitText){
+
+        $header1 = new CSVHeader($this, $this->getHeaders()[$columnIndex]->getName() . "_split_1", $columnIndex);
+        $header2 = new CSVHeader($this, $this->getHeaders()[$columnIndex]->getName() . "_split_2", $columnIndex);
+
+        unset($this->headers[$columnIndex]);
+
+        $this->headers[] = $header1;
+        $this->headers[] = $header2;
+
+        // Re-index array
+        $this->headers = array_values($this->headers);
+
+        // Fast rebuilding CSV Rows
+
+        $rows = array();
+
+        for($row = 0 ; $row < $this->getRowCount()-1 ; $row++){
+
+            $values = array();
+
+            foreach ($this->rows[$row]->getFields() as $CSVField) {
+                $values[] = $CSVField->getValue();
+            }
+
+            $newValues = explode($splitText, $values[$columnIndex]);
+            unset($values[$columnIndex]);
+            $values[] = $newValues[0];
+            $values[] = $newValues[1];
+
+            // Re-index array
+            $values = array_values($values);
+
+            $rows[] = new CSVRow($this, $row, $values, $this->headers);
+        }
+
+        $this->rows = $rows;
+        $this->columnCount++;
+
+    }
+
+
 }
