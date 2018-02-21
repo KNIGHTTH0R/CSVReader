@@ -326,5 +326,58 @@ class CSVFile
 
     }
 
+    /**
+     * @return string
+     */
+    private function createTableFromCSV(){
+        $query = "CREATE TABLE `%NAME%` (id INT PRIMARY KEY, %COLUMNS%)";
+        $column = "`%NAME%` VARCHAR(128)";
+        $query = str_replace("%NAME%", str_replace(".csv", "", basename($this->csvPath)), $query);
+        $col = array();
+        foreach ($this->headers as $CSVHeader) {
+            $col[] = str_replace("%NAME%", $CSVHeader->getName(), $column);
+        }
+        $query = str_replace("%COLUMNS%", implode(", ", $col), $query);
+        return $query;
+    }
+
+    /**
+     * @param CSVRow $CSVRow
+     * @return string
+     */
+    private function insertFromCSV($CSVRow){
+
+        $query = "INSERT INTO `%NAME%` (%COLUMNS%) VALUES (%VALUES%)";
+        $query = str_replace("%NAME%", str_replace(".csv", "", basename($this->csvPath)), $query);
+
+        $col = array();
+        foreach ($this->headers as $CSVHeader) {
+            $col[] = '`' . $CSVHeader->getName() . '`';
+        }
+
+        $query = str_replace("%COLUMNS%", implode(", ", $col), $query);
+
+        $val = array();
+        foreach ($CSVRow->getFields() as $CSVField) {
+            $val[] = '\'' . str_replace("'", "\\'", $CSVField->getValue()) . '\'';
+        }
+
+        $query = str_replace("%VALUES%", implode(", ", $val), $query);
+
+        return $query;
+
+    }
+
+    /**
+     * @return string[]
+     */
+    public function generateSqlScript(){
+        $requests = array();
+        $requests[] = $this->createTableFromCSV();
+        foreach ($this->rows as $CSVRow) {
+            $requests[] = $this->insertFromCSV($CSVRow);
+        }
+        return $requests;
+    }
 
 }
